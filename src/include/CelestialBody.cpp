@@ -9,11 +9,9 @@ CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 p
 
 }
 
-CelestialBody::~CelestialBody() {
+CelestialBody::~CelestialBody() = default;
 
-}
-
-float CelestialBody::getMass() {
+float CelestialBody::getMass() const {
     return this->mass;
 }
 
@@ -52,6 +50,6 @@ void CelestialBody::render() {
     DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, this->color);
 }
 
-float CelestialBody::calculateMass(float surfaceGravity, float fRadius) {
+float CelestialBody::calculateMass(float surfaceGravity, float fRadius) const {
     return surfaceGravity * fRadius * fRadius / G;
 }

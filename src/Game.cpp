@@ -10,7 +10,7 @@ void Game::initWindow() {
 }
 
 void Game::initCelestialBodies() {
-    celestialBodies.push_back(new CelestialBody(500.F, 50.F, {400, 200}, {0, 0}, YELLOW));
+    celestialBodies.push_back(new CelestialBody(500.F, 50.F, {400, 200}, {0, 0}, {255, 203, 0, 255}));
     celestialBodies.push_back(new CelestialBody(10.F, 20.F, {600, 200}, {0, 79}, GREEN));
 
 
