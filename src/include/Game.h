@@ -6,13 +6,10 @@
 #define SPACEGAME_GAME_H
 
 #include "CelestialBody.h"
-#include <vector>
 
 class Game {
 
 private:
-    float posY;
-
     std::vector<CelestialBody *> celestialBodies;
 
     void initCelestialBodies();

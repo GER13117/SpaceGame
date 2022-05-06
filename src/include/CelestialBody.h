@@ -4,11 +4,16 @@
 
 #ifndef SPACEGAME_CELESTIALBODY_H
 #define SPACEGAME_CELESTIALBODY_H
+
 #include <raylib.h>
+#include <raymath.h>
+
+#include <vector>
 
 class CelestialBody {
 private:
     const float G = 0.00001;
+    std::vector<CelestialBody *> celestialBodies;
     float calculateMass(float surfaceGravity, float fRadius);
 
     float mass;
@@ -17,8 +22,13 @@ private:
     Vector2 velocity;
     Color color;
 public:
+    float getMass();
 
-    CelestialBody(float surfaceGravity, float radius, const Vector2 &pos, Color color);
+    Vector2 getPosition();
+
+    void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
+
+    CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color);
 
     virtual ~CelestialBody();
 
