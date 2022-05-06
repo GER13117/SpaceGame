@@ -6,7 +6,7 @@
 
 void Game::initWindow() {
     InitWindow(800, 450, "Space Game");
-    SetTargetFPS(60);
+    SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 }
 
 void Game::initCelestialBodies() {
@@ -21,7 +21,10 @@ Game::Game() {
 }
 
 Game::~Game() {
-
+    for (auto e : celestialBodies) {
+        delete e;
+    }
+    celestialBodies.clear();
 }
 
 void Game::updateInput(const float &dt) {
@@ -45,7 +48,7 @@ void Game::update(const float &dt) {
     }
 
     //Moving Text
-    if (posY > 450)
+    if (posY > (float) GetScreenHeight())
         posY = -20;
     else
         posY += dt * 20;
