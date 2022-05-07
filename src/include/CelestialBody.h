@@ -9,6 +9,7 @@
 #include <raymath.h>
 
 #include <vector>
+#include <iostream>
 
 class CelestialBody {
 private:

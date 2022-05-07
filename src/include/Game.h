@@ -10,6 +10,10 @@
 class Game {
 
 private:
+    Camera2D camera;
+
+    int planetIndex = 0;
+
     std::vector<CelestialBody *> celestialBodies;
 
     void initCelestialBodies();
