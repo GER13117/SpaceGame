@@ -14,15 +14,17 @@ private:
 
     Camera2D camera;
 
-    uint8_t counter = 0;
-
     Vector2 posSelectedPlanet;
+
+    bool anyBodySelected = false;
 
     Vector2 posSun;
 
     float distToSun = 0.F;
 
     float velSelectedPlanet;
+
+    float radiusSelectedPlanet;
 
     const char* nameSelectedPlanet;
 
@@ -39,6 +41,8 @@ private:
     void guiUpdateRender();
 
     void updateInput(const float &dt);
+
+    void infoText(Vector2 pos, float font_size);
 
     void update(const float &dt);
 

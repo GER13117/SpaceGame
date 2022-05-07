@@ -93,7 +93,7 @@ void Game::updateInput(const float &dt) {
 
     if (IsMouseButtonPressed(0)) {
         for (auto e: celestialBodies) {
-            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius()*camera.zoom)) {
+            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius() * camera.zoom)) {
                 e->selected = true;
             } else
                 e->selected = false;
@@ -123,26 +123,34 @@ void Game::guiUpdateRender() {
         pauseGame = !pauseGame;
 }
 
+void Game::infoText(Vector2 pos, float font_size) {
+    DrawTextEx(GetFontDefault(), nameSelectedPlanet, Vector2Subtract(pos, {0.F, 10.F}), font_size + 10.F, (font_size + 10.F) / 10.F, WHITE);
+    DrawTextEx(GetFontDefault(), TextFormat("x: %0.3f", posSelectedPlanet.x), Vector2Add(pos, {0.F, 1.5F * font_size}), font_size, font_size / 10.F, WHITE);
+    DrawTextEx(GetFontDefault(), TextFormat("y: %0.3f", posSelectedPlanet.y), Vector2Add(pos, {0.F, 2.5F * font_size}), font_size, font_size / 10.F, WHITE);
+    DrawTextEx(GetFontDefault(), TextFormat("speed: %0.3f", velSelectedPlanet), Vector2Add(pos, {0.F, 3.5F * font_size}), font_size, font_size / 10.F, WHITE);
+    DrawTextEx(GetFontDefault(), TextFormat("dist to sun: %0.3f", distToSun), Vector2Add(pos, {0.F, 4.5F * font_size}), font_size, font_size / 10.F, WHITE);
+}
+
+
 void Game::update(const float &dt) {
+    anyBodySelected = false;
     updateInput(dt);
     if (!pauseGame) { //False clang-tidy
         for (auto e: celestialBodies) {
             e->update(dt);
         }
     }
-
-    if (counter % 10 == 0) {
-        posSun = celestialBodies[0]->getPosition();
-        for (auto e: celestialBodies) {
-            if (e->selected) {
-                posSelectedPlanet = e->getPosition();
-                velSelectedPlanet = e->getVelocity();
-                nameSelectedPlanet = e->getName();
-            }
+    posSun = celestialBodies[0]->getPosition();
+    for (auto e: celestialBodies) {
+        if (e->selected) {
+            posSelectedPlanet = e->getPosition();
+            velSelectedPlanet = e->getVelocity();
+            nameSelectedPlanet = e->getName();
+            radiusSelectedPlanet = e->getRadius();
+            anyBodySelected = true;
         }
-        distToSun = Vector2Distance(posSun, posSelectedPlanet);
     }
-    counter++;
+    distToSun = Vector2Distance(posSun, posSelectedPlanet);
 
     camera.target = celestialBodies.at(planetIndex)->getPosition();
 }
@@ -156,17 +164,14 @@ void Game::render() {
     for (auto e: celestialBodies) {
         e->render();
     }
+    if (anyBodySelected)
+        infoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 20);
+
     EndMode2D();
 
     guiUpdateRender();
 
     DrawText(celestialBodies[planetIndex]->getName(), GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
-
-    DrawText(nameSelectedPlanet, 10, 90, 30, WHITE);
-    DrawText(TextFormat("x: %2.3f", posSelectedPlanet.x), 10, 130, 20, WHITE);
-    DrawText(TextFormat("y: %2.3f", posSelectedPlanet.y), 10, 160, 20, WHITE);
-    DrawText(TextFormat("speed: %2.3f", velSelectedPlanet), 10, 190, 20, WHITE);
-    DrawText(TextFormat("dist to sun: %2.3f", distToSun), 10, 220, 20, WHITE);
 
     DrawFPS(10, 10);
     EndDrawing();
