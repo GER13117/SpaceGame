@@ -31,14 +31,21 @@ void Game::initCelestialBodies() {
     //Sun
     const float sunGravity = 500.F;
     const float sunRadius = 50.F;
-    celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD));
+    celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
 
     //Planets
-    celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0}, {0, startVel(sunGravity, sunRadius, 200.F)}, GREEN));
-    celestialBodies.push_back(new CelestialBody(10.F, 30.F, {-300, 0}, {0, startVel(sunGravity, sunRadius, -300.F)}, PURPLE));
+    celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0}, {0, startVel(sunGravity, sunRadius, 200.F)}, GREEN, "Earth"));
 
-    celestialBodies.push_back(new CelestialBody(15.F, 10.F, {-600, 0}, {0, startVel(sunGravity, sunRadius, -600.F)}, BROWN));
-    celestialBodies.push_back(new CelestialBody(2.F, 5.F, {-600, 25}, {startVel(15.F, 10.F, 25.F), startVel(sunGravity, sunRadius, -600.F)}, LIGHTGRAY));
+    celestialBodies.push_back(new CelestialBody(10.F, 30.F, {-300, 0}, {0, startVel(sunGravity, sunRadius, -300.F)}, PURPLE, "Pluto"));
+
+    celestialBodies.push_back(new CelestialBody(15.F, 10.F, {-600, 0}, {0, startVel(sunGravity, sunRadius, -600.F)}, BROWN, "Brownie"));
+    celestialBodies.push_back(new CelestialBody(2.F, 5.F, {-600, 25}, {startVel(15.F, 10.F, 25.F), startVel(sunGravity, sunRadius, -600.F)}, LIGHTGRAY, "Moon"));
+
+
+    celestialBodies.push_back(new CelestialBody(9.F, 30.F, {1000, 0}, {0, startVel(sunGravity, sunRadius, 1000.F)}, BLUE, "Poseidon"));
+    celestialBodies.push_back(new CelestialBody(2.F, 5.F, {1000, 50}, {startVel(9.F, 30.F, 50.F), startVel(sunGravity, sunRadius, 1000.F)}, PINK, "Europa"));
+    celestialBodies.push_back(new CelestialBody(1.F, 7.F, {1000, -70}, {startVel(9.F, 30.F, -70.F), startVel(sunGravity, sunRadius, 1000.F)}, RAYWHITE, "Rasmus"));
+
 
     for (auto e: celestialBodies) {
         e->setOtherCelestialBodies(celestialBodies);
@@ -86,7 +93,7 @@ void Game::updateInput(const float &dt) {
 
     if (IsMouseButtonPressed(0)) {
         for (auto e: celestialBodies) {
-            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius())) {
+            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius()*camera.zoom)) {
                 e->selected = true;
             } else
                 e->selected = false;
@@ -130,6 +137,7 @@ void Game::update(const float &dt) {
             if (e->selected) {
                 posSelectedPlanet = e->getPosition();
                 velSelectedPlanet = e->getVelocity();
+                nameSelectedPlanet = e->getName();
             }
         }
         distToSun = Vector2Distance(posSun, posSelectedPlanet);
@@ -141,7 +149,7 @@ void Game::update(const float &dt) {
 
 void Game::render() {
     BeginDrawing();
-    ClearBackground({31, 33, 54});
+    ClearBackground({0, 1, 23});
 
     //World viewed by the camera
     BeginMode2D(camera);
@@ -152,10 +160,13 @@ void Game::render() {
 
     guiUpdateRender();
 
-    DrawText(TextFormat("x: %2.3f", posSelectedPlanet.x), 10, 100, 20, WHITE);
-    DrawText(TextFormat("y: %2.3f", posSelectedPlanet.y), 10, 130, 20, WHITE);
-    DrawText(TextFormat("speed: %2.3f", velSelectedPlanet), 10, 160, 20, WHITE);
-    DrawText(TextFormat("dist to sun: %2.2f", distToSun), 10, 190, 20, WHITE);
+    DrawText(celestialBodies[planetIndex]->getName(), GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
+
+    DrawText(nameSelectedPlanet, 10, 90, 30, WHITE);
+    DrawText(TextFormat("x: %2.3f", posSelectedPlanet.x), 10, 130, 20, WHITE);
+    DrawText(TextFormat("y: %2.3f", posSelectedPlanet.y), 10, 160, 20, WHITE);
+    DrawText(TextFormat("speed: %2.3f", velSelectedPlanet), 10, 190, 20, WHITE);
+    DrawText(TextFormat("dist to sun: %2.3f", distToSun), 10, 220, 20, WHITE);
 
     DrawFPS(10, 10);
     EndDrawing();

@@ -4,13 +4,13 @@
 
 #include "CelestialBody.h"
 
-CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color)
-        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color) {
+CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char* name)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {
 
 }
 
-CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color)
-        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color) {
+CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char* name)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {
 }
 
 CelestialBody::~CelestialBody() = default;
@@ -30,6 +30,10 @@ float CelestialBody::getRadius() const{
 
 float CelestialBody::getVelocity() const {
     return Vector2Length(velocity);
+}
+
+const char *CelestialBody::getName() {
+    return name;
 }
 
 
@@ -64,10 +68,10 @@ void CelestialBody::update(const float &dt) {
 
 void CelestialBody::render() {
     if (selected) {
-        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, RED);
-        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius - 5, this->color);
+        DrawCircleV(pos, this->radius, RED);
+        DrawCircleV(pos, this->radius - 5, this->color);
     } else {
-        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, this->color);
+        DrawCircleV(pos, this->radius, this->color);
 
     }
 

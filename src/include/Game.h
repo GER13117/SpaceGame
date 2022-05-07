@@ -24,6 +24,8 @@ private:
 
     float velSelectedPlanet;
 
+    const char* nameSelectedPlanet;
+
     std::size_t planetIndex = 0;
 
     std::vector<CelestialBody *> celestialBodies;

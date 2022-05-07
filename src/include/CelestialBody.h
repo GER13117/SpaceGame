@@ -16,6 +16,8 @@ private:
     const float G = 0.00001;
     std::vector<CelestialBody *> celestialBodies;
 
+    const char* name;
+
     [[nodiscard]] float calculateMass(float surfaceGravity, float fRadius) const;
 
     float mass;
@@ -36,15 +38,17 @@ public:
 
     [[nodiscard]] float getRadius() const;
 
-    float getVelocity() const;
+    [[nodiscard]] float getVelocity() const;
+
+    const char* getName();
 
     void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
 
-    CelestialBody(float surfaceGravity, float radius, Vector2 pos, Vector2 vel, Color color);
+    CelestialBody(float surfaceGravity, float radius, Vector2 pos, Vector2 vel, Color color, const char *name);
 
-    CelestialBody(float surfaceGravity, float radius, Color color);
+    CelestialBody(float surfaceGravity, float radius, Color color, const char *name);
 
-    CelestialBody(float surfaceGravity, float radius, float degrees, float vel, Color color);
+    CelestialBody(float surfaceGravity, float radius, float degrees, float vel, Color color, const char *name);
 
     virtual ~CelestialBody();
 
