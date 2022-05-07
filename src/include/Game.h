@@ -14,11 +14,18 @@ private:
 
     Camera2D camera;
 
+    uint8_t counter = 0;
+
+    Vector2 posSelectedPlanet;
+    float velSelectedPlanet;
+
     std::size_t planetIndex = 0;
 
     std::vector<CelestialBody *> celestialBodies;
 
     void initCelestialBodies();
+
+    float startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance);
 
     void initWindow();
 

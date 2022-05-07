@@ -12,19 +12,30 @@ void Game::initWindow() {
     InitWindow(1500, 840, "Space Game");
     SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
+    //Start Window in FullScreen
     int display = GetCurrentMonitor();
     SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
     ToggleFullscreen();
 
 }
 
+float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
+    if (orbitDistance < 0)
+        return -sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / -orbitDistance);
+    return sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / orbitDistance);
+}
+
 void Game::initCelestialBodies() {
 
     //Starting velocity = sqr(G * M_central / R)
+    //Sun
+    const float sunGravity = 500.F;
+    const float sunRadius = 50.F;
+    celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD));
 
-    celestialBodies.push_back(new CelestialBody(500.F, 50.F, {0, 0}, {0, 0}, {255, 203, 0, 255}));
-    celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0}, {0, 79}, GREEN));
-    celestialBodies.push_back(new CelestialBody(10.F, 30.F, {-300, 0}, {0, -65}, PURPLE));
+    //Planets
+    celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0}, {0, startVel(sunGravity, sunRadius, 200.F)}, GREEN));
+    celestialBodies.push_back(new CelestialBody(10.F, 30.F, {-300, 0}, {0, startVel(sunGravity, sunRadius, -300.F)}, PURPLE));
 
 
     for (auto e: celestialBodies) {
@@ -64,6 +75,22 @@ void Game::updateInput(const float &dt) {
         ToggleFullscreen();
     }
 
+    //Zoom in and out
+    if (GetMouseWheelMove() < 0 && camera.zoom >= 0.1F)
+        camera.zoom -= 0.1F;
+    if (GetMouseWheelMove() > 0)
+        camera.zoom += 0.1F;
+
+
+    if (IsMouseButtonPressed(0)) {
+        for (auto e: celestialBodies) {
+            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius())) {
+                e->selected = true;
+            } else
+                e->selected = false;
+        }
+    }
+
     if (IsKeyPressed(KEY_SPACE)) {
         pauseGame = !pauseGame;
     }
@@ -83,7 +110,6 @@ void Game::updateInput(const float &dt) {
 }
 
 void Game::guiUpdateRender() {
-
     if (GuiButton({10, 50, 80, 20}, pauseGame ? "continue" : "pause")) //False clang-tidy
         pauseGame = !pauseGame;
 }
@@ -96,6 +122,16 @@ void Game::update(const float &dt) {
         }
     }
 
+    if (counter % 10 == 0) {
+        for (auto e: celestialBodies) {
+            if (e->selected) {
+                posSelectedPlanet = e->getPosition();
+                velSelectedPlanet = e->getVelocity();
+            }
+        }
+    }
+    counter++;
+
     camera.target = celestialBodies.at(planetIndex)->getPosition();
 }
 
@@ -103,6 +139,7 @@ void Game::render() {
     BeginDrawing();
     ClearBackground({31, 33, 54});
 
+    //World viewed by the camera
     BeginMode2D(camera);
     for (auto e: celestialBodies) {
         e->render();
@@ -111,7 +148,11 @@ void Game::render() {
 
     guiUpdateRender();
 
-    DrawFPS(0, 0);
+    DrawText(TextFormat("x: %2.3f", posSelectedPlanet.x), 10, 100, 20, WHITE);
+    DrawText(TextFormat("y: %2.3f", posSelectedPlanet.y), 10, 130, 20, WHITE);
+    DrawText(TextFormat("speed: %2.3f", velSelectedPlanet), 10, 160, 20, WHITE);
+
+    DrawFPS(10, 10);
     EndDrawing();
 }
 

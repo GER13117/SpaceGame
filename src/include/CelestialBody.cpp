@@ -9,8 +9,13 @@ CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 p
 
 }
 
+CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color) {
+}
+
 CelestialBody::~CelestialBody() = default;
 
+//Getter
 float CelestialBody::getMass() const {
     return this->mass;
 }
@@ -19,9 +24,20 @@ Vector2 CelestialBody::getPosition() {
     return this->pos;
 }
 
+float CelestialBody::getRadius() const{
+    return radius;
+}
+
+float CelestialBody::getVelocity() const {
+    return Vector2Length(velocity);
+}
+
+
+//Setter
 void CelestialBody::setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies) {
     this->celestialBodies = celestial_bodies;
 }
+
 
 void CelestialBody::update(const float &dt) {
     for (auto e: celestialBodies) {
@@ -47,7 +63,14 @@ void CelestialBody::update(const float &dt) {
 }
 
 void CelestialBody::render() {
-    DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, this->color);
+    if (selected) {
+        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, RED);
+        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius - 5, this->color);
+    } else {
+        DrawCircle((int) this->pos.x, (int) this->pos.y, this->radius, this->color);
+
+    }
+
 }
 
 float CelestialBody::calculateMass(float surfaceGravity, float fRadius) const {
