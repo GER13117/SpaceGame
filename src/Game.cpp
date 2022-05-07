@@ -4,12 +4,18 @@
 
 #include "include/Game.h"
 
+#define RAYGUI_IMPLEMENTATION
+
+#include "extras/raygui.h"
+
 void Game::initWindow() {
     InitWindow(1500, 840, "Space Game");
     SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
-    /*int display = GetCurrentMonitor();
+
+    int display = GetCurrentMonitor();
     SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
-    ToggleFullscreen();*/
+    ToggleFullscreen();
+
 }
 
 void Game::initCelestialBodies() {
@@ -30,8 +36,8 @@ void Game::initCelestialBodies() {
 Game::Game() {
     initWindow();
     camera = {0};
-    camera.target = (Vector2) {0.f, 0.f};
-    camera.offset = (Vector2) {GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f};
+    camera.target = {0.f, 0.f};
+    camera.offset = {(float) GetScreenWidth() / 2.0f, (float) GetScreenHeight() / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
     initCelestialBodies();
@@ -45,17 +51,51 @@ Game::~Game() {
 }
 
 void Game::updateInput(const float &dt) {
-    if (IsKeyPressed(KEY_LEFT) && planetIndex > 0)
-        planetIndex--;
-    else if (IsKeyPressed(KEY_RIGHT) && planetIndex + 1 < celestialBodies.size())
-        planetIndex++;
+    //Toggle Fullscreen
+    //TODO: Fix resize to windowed window
+    if (IsKeyPressed(KEY_ENTER) && (IsKeyDown(KEY_LEFT_ALT) || IsKeyDown(KEY_RIGHT_ALT))) {
+        int display = GetCurrentMonitor();
+        pauseGame = true;
+        if (IsWindowFullscreen()) {
+            SetWindowSize(1500, 840);
+        } else {
+            SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+        }
+        ToggleFullscreen();
+    }
+
+    if (IsKeyPressed(KEY_SPACE)) {
+        pauseGame = !pauseGame;
+    }
+
+    if (IsKeyPressed(KEY_LEFT)) {
+        if (planetIndex > 0)
+            planetIndex--;
+        else
+            planetIndex = celestialBodies.size() - 1;
+    } else if (IsKeyPressed(KEY_RIGHT)) {
+        if (planetIndex + 1 < celestialBodies.size())
+            planetIndex++;
+        else
+            planetIndex = 0;
+    }
+
+}
+
+void Game::guiUpdateRender() {
+
+    if (GuiButton({10, 50, 80, 20}, pauseGame ? "continue" : "pause")) //False clang-tidy
+        pauseGame = !pauseGame;
 }
 
 void Game::update(const float &dt) {
     updateInput(dt);
-    for (auto e: celestialBodies) {
-        e->update(dt);
+    if (!pauseGame) { //False clang-tidy
+        for (auto e: celestialBodies) {
+            e->update(dt);
+        }
     }
+
     camera.target = celestialBodies.at(planetIndex)->getPosition();
 }
 
@@ -68,6 +108,8 @@ void Game::render() {
         e->render();
     }
     EndMode2D();
+
+    guiUpdateRender();
 
     DrawFPS(0, 0);
     EndDrawing();

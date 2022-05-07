@@ -10,15 +10,19 @@
 class Game {
 
 private:
+    bool pauseGame = true;
+
     Camera2D camera;
 
-    int planetIndex = 0;
+    std::size_t planetIndex = 0;
 
     std::vector<CelestialBody *> celestialBodies;
 
     void initCelestialBodies();
 
     void initWindow();
+
+    void guiUpdateRender();
 
     void updateInput(const float &dt);
 
