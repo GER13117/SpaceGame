@@ -37,6 +37,8 @@ void Game::initCelestialBodies() {
     celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0}, {0, startVel(sunGravity, sunRadius, 200.F)}, GREEN));
     celestialBodies.push_back(new CelestialBody(10.F, 30.F, {-300, 0}, {0, startVel(sunGravity, sunRadius, -300.F)}, PURPLE));
 
+    celestialBodies.push_back(new CelestialBody(15.F, 10.F, {-600, 0}, {0, startVel(sunGravity, sunRadius, -600.F)}, BROWN));
+    celestialBodies.push_back(new CelestialBody(2.F, 5.F, {-600, 25}, {startVel(15.F, 10.F, 25.F), startVel(sunGravity, sunRadius, -600.F)}, LIGHTGRAY));
 
     for (auto e: celestialBodies) {
         e->setOtherCelestialBodies(celestialBodies);
@@ -123,12 +125,14 @@ void Game::update(const float &dt) {
     }
 
     if (counter % 10 == 0) {
+        posSun = celestialBodies[0]->getPosition();
         for (auto e: celestialBodies) {
             if (e->selected) {
                 posSelectedPlanet = e->getPosition();
                 velSelectedPlanet = e->getVelocity();
             }
         }
+        distToSun = Vector2Distance(posSun, posSelectedPlanet);
     }
     counter++;
 
@@ -151,6 +155,7 @@ void Game::render() {
     DrawText(TextFormat("x: %2.3f", posSelectedPlanet.x), 10, 100, 20, WHITE);
     DrawText(TextFormat("y: %2.3f", posSelectedPlanet.y), 10, 130, 20, WHITE);
     DrawText(TextFormat("speed: %2.3f", velSelectedPlanet), 10, 160, 20, WHITE);
+    DrawText(TextFormat("dist to sun: %2.2f", distToSun), 10, 190, 20, WHITE);
 
     DrawFPS(10, 10);
     EndDrawing();

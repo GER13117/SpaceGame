@@ -17,6 +17,11 @@ private:
     uint8_t counter = 0;
 
     Vector2 posSelectedPlanet;
+
+    Vector2 posSun;
+
+    float distToSun = 0.F;
+
     float velSelectedPlanet;
 
     std::size_t planetIndex = 0;
