@@ -24,11 +24,19 @@ private:
 
     float radius;
 
+    bool hasRing = false;
+
+    float outerRingRadius;
+
+    float innerRingRadius;
+
     Vector2 pos;
 
     Vector2 velocity;
 
     Color color;
+
+    Color ringColor;
 public:
     bool selected = false;
 
@@ -45,6 +53,8 @@ public:
     void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
 
     CelestialBody(float surfaceGravity, float radius, Vector2 pos, Vector2 vel, Color color, const char *name);
+
+    CelestialBody(float surfaceGravity, float pRadius, float inner_ring_radius, float outer_ring_radius, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name);
 
     CelestialBody(float surfaceGravity, float radius, Color color, const char *name);
 

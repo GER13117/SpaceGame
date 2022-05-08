@@ -4,14 +4,16 @@
 
 #include "CelestialBody.h"
 
-CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char* name)
-        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {
+CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char *name)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {}
 
-}
 
-CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char* name)
-        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {
-}
+CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float inner_ring_radius, float outer_ring_radius, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name)
+        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius), innerRingRadius(inner_ring_radius), outerRingRadius(outer_ring_radius), pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
+
+
+CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char *name)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {}
 
 CelestialBody::~CelestialBody() = default;
 
@@ -24,7 +26,7 @@ Vector2 CelestialBody::getPosition() {
     return this->pos;
 }
 
-float CelestialBody::getRadius() const{
+float CelestialBody::getRadius() const {
     return radius;
 }
 
@@ -67,6 +69,10 @@ void CelestialBody::update(const float &dt) {
 }
 
 void CelestialBody::render() {
+    if (hasRing) {
+        DrawRing(pos, this->innerRingRadius, this->outerRingRadius, 0, 360, 90, ringColor);
+    }
+
     if (selected) {
         DrawCircleV(pos, this->radius, RED);
         DrawCircleV(pos, this->radius - 5, this->color);
@@ -74,7 +80,6 @@ void CelestialBody::render() {
         DrawCircleV(pos, this->radius, this->color);
 
     }
-
 }
 
 float CelestialBody::calculateMass(float surfaceGravity, float fRadius) const {

@@ -34,6 +34,8 @@ private:
 
     void initCelestialBodies();
 
+    void resetSolarSystem();
+
     float startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance);
 
     void initWindow();
