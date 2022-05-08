@@ -2,6 +2,8 @@
 // Created by Okke on 06.05.2022.
 //
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 #include "include/Game.h"
 
 #define RAYGUI_IMPLEMENTATION
@@ -229,3 +231,4 @@ void Game::run() {
 
     CloseWindow();
 }
+#pragma clang diagnostic pop
