@@ -4,6 +4,7 @@
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnreachableCode"
+
 #include "include/Game.h"
 
 #define RAYGUI_IMPLEMENTATION
@@ -36,34 +37,28 @@ void Game::initCelestialBodies() {
     celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
 
     //Planets
-    celestialBodies.push_back(new CelestialBody(10.F, 20.F, {200, 0},
-                                                {0, startVel(sunGravity, sunRadius, 200.F)},
-                                                GREEN, "Earth"));
+    celestialBodies.push_back(new CelestialBody(10.F, 20.F, 200, sunRadius, sunGravity, GREEN, "Earth"));
 
-    celestialBodies.push_back(new CelestialBody(10.F, 30.F, 10.F, 7.F, {-300, 0},
-                                                {0, startVel(sunGravity, sunRadius, -300.F)},
+    celestialBodies.push_back(new CelestialBody(10.F, 30.F, 10.F, 7.F, -300,
+                                                sunRadius, sunGravity,
                                                 PURPLE, {245, 245, 245, 200}, "Pluto"));
 
-    celestialBodies.push_back(new CelestialBody(15.F, 10.F, {600, 0},
-                                                {0, startVel(sunGravity, sunRadius, 600.F)},
-                                                BROWN, "Brownie"));
+    celestialBodies.push_back(new CelestialBody(15.F, 10.F, 600, sunRadius, sunGravity, BROWN, "Brownie"));
     celestialBodies.push_back(new CelestialBody(2.F, 5.F, {600, 25},
                                                 {startVel(15.F, 10.F, 25.F),
                                                  startVel(sunGravity, sunRadius, 600.F)},
-                                                 LIGHTGRAY, "Moon"));
+                                                LIGHTGRAY, "Moon"));
 
 
-    celestialBodies.push_back(new CelestialBody(9.F, 30.F, {1000, 0},
-                                                {0, startVel(sunGravity, sunRadius, 1000.F)},
-                                                BLUE, "Poseidon"));
+    celestialBodies.push_back(new CelestialBody(9.F, 30.F, 1000, sunRadius, sunGravity, BLUE, "Poseidon"));
     celestialBodies.push_back(new CelestialBody(2.F, 5.F, {1000, 50},
                                                 {startVel(9.F, 30.F, 50.F),
                                                  startVel(sunGravity, sunRadius, 1000.F)},
-                                                 PINK, "Europa"));
+                                                PINK, "Europa"));
     celestialBodies.push_back(new CelestialBody(1.F, 7.F, {1000, -70},
                                                 {startVel(9.F, 30.F, -70.F),
                                                  startVel(sunGravity, sunRadius, 1000.F)},
-                                                 RAYWHITE, "Rasmus"));
+                                                RAYWHITE, "Rasmus"));
 
 
     for (auto e: celestialBodies) {
@@ -231,4 +226,5 @@ void Game::run() {
 
     CloseWindow();
 }
+
 #pragma clang diagnostic pop

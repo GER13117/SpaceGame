@@ -8,8 +8,20 @@ CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 p
         : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {}
 
 CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name)
-        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius), innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width), pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
+        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius),
+          innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width),
+          pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
 
+CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color,
+                             Color ring_color, const char *name)
+        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius),
+          innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width),
+          pos({dist_to_sun, 0}), velocity({0, startVel(sun_surface_gravity, sun_radius, dist_to_sun)}),
+          color(color), ringColor(ring_color), name(name), hasRing(true) {
+}
+
+CelestialBody::CelestialBody(float surfaceGravity, float radius, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color, const char *name)
+        : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({dist_to_sun, 0}), velocity({0, startVel(sun_surface_gravity, sun_radius, dist_to_sun)}), color(color), name(name) {}
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char *name)
         : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {}
@@ -83,4 +95,10 @@ void CelestialBody::render() {
 
 float CelestialBody::calculateMass(float surfaceGravity, float fRadius) const {
     return surfaceGravity * fRadius * fRadius / G;
+}
+
+float CelestialBody::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
+    if (orbitDistance < 0)
+        return -sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / -orbitDistance);
+    return sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / orbitDistance);
 }

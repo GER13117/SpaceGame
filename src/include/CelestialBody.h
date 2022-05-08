@@ -14,11 +14,14 @@
 class CelestialBody {
 private:
     const float G = 0.00001;
+
     std::vector<CelestialBody *> celestialBodies;
 
-    const char* name;
+    const char *name;
 
     [[nodiscard]] float calculateMass(float surfaceGravity, float fRadius) const;
+
+    static float startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance);
 
     float mass;
 
@@ -26,9 +29,9 @@ private:
 
     bool hasRing = false;
 
-    float outerRingRadius;
+    float outerRingRadius = 0.F;
 
-    float innerRingRadius;
+    float innerRingRadius = 0.F;
 
     Vector2 pos;
 
@@ -36,7 +39,7 @@ private:
 
     Color color;
 
-    Color ringColor;
+    Color ringColor = BLACK;
 public:
     bool selected = false;
 
@@ -48,20 +51,60 @@ public:
 
     [[nodiscard]] float getVelocity() const;
 
-    const char* getName();
+    const char *getName();
 
     void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
 
-    //Sun
+
+    //Constructors
+    /**
+     * Sun / Central body of the planet-system
+     * @param surfaceGravity
+     * @param radius
+     * @param color
+     * @param name
+     */
     CelestialBody(float surfaceGravity, float radius, Color color, const char *name);
 
-    //Normal Planets
+    /**
+     * Celestial body by x/y-position and velocity
+     * @param surfaceGravity
+     * @param radius
+     * @param pos
+     * @param vel
+     * @param color
+     * @param name
+     */
     CelestialBody(float surfaceGravity, float radius, Vector2 pos, Vector2 vel, Color color, const char *name);
 
-    CelestialBody(float surfaceGravity, float radius, float degrees, float vel, Color color, const char *name);
+    /**
+     * Sun orbiting planet by distance to sun
+     * @param surfaceGravity
+     * @param radius
+     * @param dist_to_sun
+     * @param sun_radius
+     * @param sun_surface_gravity
+     * @param color
+     * @param name
+     */
+    CelestialBody(float surfaceGravity, float radius, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color, const char *name);
 
-    //Planets with rings
+    /**
+     * Planet with a ring around him, by x/y-position and velocity
+     * @param surfaceGravity
+     * @param pRadius
+     * @param dist_to_surface
+     * @param ring_width
+     * @param pos
+     * @param vel
+     * @param color
+     * @param ring_color
+     * @param name
+     */
     CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name);
+
+    CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color, Color ring_color, const char *name);
+
 
     virtual ~CelestialBody();
 
