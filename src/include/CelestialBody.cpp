@@ -7,9 +7,8 @@
 CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char *name)
         : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {}
 
-
-CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float inner_ring_radius, float outer_ring_radius, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name)
-        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius), innerRingRadius(inner_ring_radius), outerRingRadius(outer_ring_radius), pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
+CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name)
+        : mass(calculateMass(surfaceGravity, pRadius)), radius(pRadius), innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width), pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
 
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char *name)
