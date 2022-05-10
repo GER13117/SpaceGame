@@ -41,8 +41,12 @@ private:
 
     Color ringColor = BLACK;
 public:
+    //Flags
     bool selected = false;
 
+    bool getsModified = false;
+
+    //Getter
     [[nodiscard]] float getMass() const;
 
     Vector2 getPosition();
@@ -54,6 +58,13 @@ public:
     Vector2 getVVelocity();
 
     const char *getName();
+
+    Color getColor();
+
+    //Setter
+    void setColor(Color newColor);
+
+    void setRadius(float newRadius);
 
     void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
 
@@ -107,13 +118,11 @@ public:
 
     CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color, Color ring_color, const char *name);
 
-
     virtual ~CelestialBody();
 
     void update(const float &dt);
 
     void render();
-
 };
 
 

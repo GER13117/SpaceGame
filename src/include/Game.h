@@ -10,6 +10,12 @@
 class Game {
 
 private:
+    bool modifyPlanet;
+
+    const float sunGravity = 500.F;
+
+    const float sunRadius = 50.F;
+
     bool pauseGame = true;
 
     bool editSystem = false;

@@ -88,7 +88,7 @@ void CelestialBody::render() {
         DrawRing(pos, this->innerRingRadius, this->outerRingRadius, 0, 360, 90, ringColor);
     }
 
-    if (selected) {
+    if (selected || getsModified) {
         DrawCircleV(pos, this->radius, RED);
         DrawCircleV(pos, this->radius - 5, this->color);
     } else {
@@ -105,4 +105,16 @@ float CelestialBody::startVel(float centralSurfaceGravity, float centralBodyRadi
     if (orbitDistance < 0)
         return -sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / -orbitDistance);
     return sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / orbitDistance);
+}
+
+Color CelestialBody::getColor() {
+    return this->color;
+}
+
+void CelestialBody::setColor(Color newColor) {
+    this->color = newColor;
+}
+
+void CelestialBody::setRadius(float newRadius) {
+    this->radius = newRadius;
 }

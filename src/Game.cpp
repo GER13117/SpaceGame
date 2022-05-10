@@ -32,8 +32,6 @@ void Game::initCelestialBodies() {
 
     //Starting velocity = sqr(G * M_central / R)
     //Sun
-    const float sunGravity = 500.F;
-    const float sunRadius = 50.F;
     celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
 
     //Planets
@@ -77,13 +75,41 @@ void Game::resetSolarSystem() {
     pauseGame = true;
 }
 
-void Game::editSolarSystem() { //TODO: Implement
+void Game::editSolarSystem() {
     pauseGame = true;
+    //TODO: Implement CelestialBody Constructor that calculates the velocity using the angle of the planet
 
-    if (IsMouseButtonPressed(0)) {
-        DrawCircleV(GetMousePosition(), 20, RED);
+    if (IsMouseButtonPressed(0) && false) { //TODO: Nur aufrufen, wenn keine Taste gedrückt ist --> Planet add modus? // Exclusion zone
+        float fDistToSun = Vector2Distance(celestialBodies[0]->getPosition(),
+                                           GetScreenToWorld2D(GetMousePosition(), camera));
+        celestialBodies.push_back(new CelestialBody(10.F, 20.F, fDistToSun, sunRadius, sunGravity, GREEN, "Earth"));
     }
-    std::cout << "Not implemented" << std::endl;
+
+    if (IsMouseButtonPressed(1)) {
+        for (auto e: celestialBodies) {
+            e->selected = false;
+            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera),
+                                          e->getRadius() * camera.zoom)) {
+                e->getsModified = true;
+            } else
+                e->getsModified = false;
+        }
+    }
+
+    for (auto e: celestialBodies) {
+        if (e->getsModified) {
+            Vector2 planetOnScreen = GetWorldToScreen2D(e->getPosition(), camera);
+            e->setColor(GuiColorPicker(
+                    {10, 300, 200, 200},
+                    e->getColor()));
+
+            e->setRadius(GuiSlider({10, 300 + 220, 100, 20}, "","", e->getRadius(), 1, 200));
+        }
+    }
+
+    for (auto e: celestialBodies) {
+        e->setOtherCelestialBodies(celestialBodies);
+    }
 }
 
 
@@ -127,7 +153,9 @@ void Game::updateInput(const float &dt) {
 
     if (IsMouseButtonPressed(0)) {
         for (auto e: celestialBodies) {
-            if (CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(e->getPosition(), camera), e->getRadius() * camera.zoom)) {
+            if (CheckCollisionPointCircle(GetMousePosition(),
+                                          GetWorldToScreen2D(e->getPosition(), camera),
+                                          e->getRadius() * camera.zoom)) {
                 e->selected = true;
             } else
                 e->selected = false;
@@ -197,7 +225,8 @@ void Game::update(const float &dt) {
     for (auto e: celestialBodies) {
         if (e->selected) {
             posSelectedPlanet = e->getPosition();
-            relativeVelSelectedPlanet = Vector2Distance(celestialBodies[planetIndex]->getVVelocity(), e->getVVelocity());
+            relativeVelSelectedPlanet = Vector2Distance(celestialBodies[planetIndex]->getVVelocity(),
+                                                        e->getVVelocity());
             nameSelectedPlanet = e->getName();
             radiusSelectedPlanet = e->getRadius();
             anyBodySelected = true;
@@ -224,7 +253,8 @@ void Game::render() {
 
     guiUpdateRender();
 
-    DrawText(celestialBodies[planetIndex]->getName(), GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
+    DrawText(celestialBodies[planetIndex]->getName(),
+             GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
 
     DrawFPS(10, 10);
     EndDrawing();
