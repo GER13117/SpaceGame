@@ -22,7 +22,7 @@ private:
 
     float distToSun = 0.F;
 
-    float velSelectedPlanet;
+    float relativeVelSelectedPlanet;
 
     float radiusSelectedPlanet;
 

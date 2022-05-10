@@ -2,7 +2,7 @@
 // Created by Okke on 06.05.2022.
 //
 
-#include "CelestialBody.h"
+#include "include/CelestialBody.h"
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char *name)
         : mass(calculateMass(surfaceGravity, radius)), radius(radius), pos(pos), velocity(vel), color(color), name(name) {}
@@ -47,6 +47,10 @@ float CelestialBody::getVelocity() const {
 
 const char *CelestialBody::getName() {
     return name;
+}
+
+Vector2 CelestialBody::getVVelocity() {
+    return this->velocity;
 }
 
 

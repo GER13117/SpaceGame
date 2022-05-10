@@ -12,12 +12,12 @@
 #include "extras/raygui.h"
 
 void Game::initWindow() {
-    InitWindow(1500, 840, "Space Game");
+    InitWindow(1920, 1080, "Space Game");
     SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
     //Start Window in FullScreen
     int display = GetCurrentMonitor();
-    SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
+    //SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
     ToggleFullscreen();
 
 }
@@ -164,7 +164,7 @@ void Game::infoText(Vector2 pos, float font_size) {
     DrawTextEx(GetFontDefault(), TextFormat("y: %0.3f", posSelectedPlanet.y),
                Vector2Add(pos, {0.F, 2.5F * font_size + 10}),
                font_size, font_size / 10.F, WHITE);
-    DrawTextEx(GetFontDefault(), TextFormat("speed: %0.3f", velSelectedPlanet),
+    DrawTextEx(GetFontDefault(), TextFormat("relative speed: %0.3f", relativeVelSelectedPlanet),
                Vector2Add(pos, {0.F, 3.5F * font_size + 10}),
                font_size, font_size / 10.F, WHITE);
     DrawTextEx(GetFontDefault(), TextFormat("dist to sun: %0.3f", distToSun),
@@ -185,7 +185,7 @@ void Game::update(const float &dt) {
     for (auto e: celestialBodies) {
         if (e->selected) {
             posSelectedPlanet = e->getPosition();
-            velSelectedPlanet = e->getVelocity();
+            relativeVelSelectedPlanet = Vector2Distance(celestialBodies[planetIndex]->getVVelocity(), e->getVVelocity());
             nameSelectedPlanet = e->getName();
             radiusSelectedPlanet = e->getRadius();
             anyBodySelected = true;

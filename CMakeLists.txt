@@ -7,7 +7,7 @@ add_subdirectory(libs/raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/Game.cpp src/include/Game.h
-        src/include/CelestialBody.cpp
+        src/CelestialBody.cpp
         src/include/CelestialBody.h)
 
 

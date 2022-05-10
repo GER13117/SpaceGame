@@ -51,6 +51,8 @@ public:
 
     [[nodiscard]] float getVelocity() const;
 
+    Vector2 getVVelocity();
+
     const char *getName();
 
     void setOtherCelestialBodies(const std::vector<CelestialBody *> &celestial_bodies);
