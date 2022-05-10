@@ -12,6 +12,8 @@ class Game {
 private:
     bool pauseGame = true;
 
+    bool editSystem = false;
+
     Camera2D camera;
 
     Vector2 posSelectedPlanet;
@@ -56,6 +58,8 @@ public:
     virtual ~Game();
 
     void run();
+
+    void editSolarSystem();
 };
 
 

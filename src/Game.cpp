@@ -77,6 +77,15 @@ void Game::resetSolarSystem() {
     pauseGame = true;
 }
 
+void Game::editSolarSystem() { //TODO: Implement
+    pauseGame = true;
+
+    if (IsMouseButtonPressed(0)) {
+        DrawCircleV(GetMousePosition(), 20, RED);
+    }
+    std::cout << "Not implemented" << std::endl;
+}
+
 
 Game::Game() {
     initWindow();
@@ -152,6 +161,9 @@ void Game::guiUpdateRender() {
         pauseGame = !pauseGame;
     if (GuiButton({10, 90, 120, 30}, "reset solar system")) //False clang-tidy
         resetSolarSystem();
+    editSystem = GuiToggle({10, 130, 120, 30}, "edit solar system", editSystem);
+    if (editSystem)
+        editSolarSystem();
 }
 
 void Game::infoText(Vector2 pos, float font_size) {
