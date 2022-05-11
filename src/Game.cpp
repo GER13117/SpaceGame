@@ -19,7 +19,6 @@ void Game::initWindow() {
     int display = GetCurrentMonitor();
     //SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
     ToggleFullscreen();
-
 }
 
 float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
@@ -79,7 +78,8 @@ void Game::editSolarSystem() {
     pauseGame = true;
     //TODO: Implement CelestialBody Constructor that calculates the velocity using the angle of the planet
 
-    if (IsMouseButtonPressed(0) && false) { //TODO: Nur aufrufen, wenn keine Taste gedrückt ist --> Planet add modus? // Exclusion zone
+    if (IsMouseButtonPressed(0) &&
+        !CheckCollisionPointRec(GetMousePosition(), {0, 0, 300, static_cast<float>(GetScreenHeight())})) { //TODO: Planet add modus?
         float fDistToSun = Vector2Distance(celestialBodies[0]->getPosition(),
                                            GetScreenToWorld2D(GetMousePosition(), camera));
         celestialBodies.push_back(new CelestialBody(10.F, 20.F, fDistToSun, sunRadius, sunGravity, GREEN, "Earth"));
@@ -103,7 +103,20 @@ void Game::editSolarSystem() {
                     {10, 300, 200, 200},
                     e->getColor()));
 
-            e->setRadius(GuiSlider({10, 300 + 220, 100, 20}, "","", e->getRadius(), 1, 200));
+            e->setRadius(GuiSlider({10, 300 + 220, 120, 30}, "", "", e->getRadius(), 1, 200));
+            e->setSurfaceGravity(GuiSlider({10, 300 + 220 + 40, 120, 30}, "", "", e->getSurfaceGravity(), 1, 200));
+            if (GuiButton({10, 300 + 220 + 40 + 40, 120, 30}, "Recalculate Mass")) {
+                e->recalculateMass();
+                if (e == celestialBodies[0]) {
+                    //Update Velocity for other Planets
+                }
+            }
+
+            e->setVVelocity(GuiSlider({10, 300 + 220, 120, 30}, "", "", e->getVelocity(), 1, 200));
+
+            if (GuiButton({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
+                std::cout << "delete e;" << std::endl;
+            } //TODO: Fix
         }
     }
 
@@ -128,6 +141,10 @@ Game::~Game() {
         delete e;
     }
     celestialBodies.clear();
+}
+
+void Game::updateTrajectories() {
+
 }
 
 void Game::updateInput(const float &dt) {
@@ -163,6 +180,9 @@ void Game::updateInput(const float &dt) {
     }
 
     if (IsKeyPressed(KEY_SPACE)) {
+        for (auto e : celestialBodies) {
+            e->getsModified = false;
+        }
         pauseGame = !pauseGame;
     }
 
@@ -192,6 +212,9 @@ void Game::guiUpdateRender() {
     editSystem = GuiToggle({10, 130, 120, 30}, "edit solar system", editSystem);
     if (editSystem)
         editSolarSystem();
+    showPredictedTrajectories = GuiToggle({10, 170, 120, 30}, "show Trajectories", showPredictedTrajectories);
+    if (showPredictedTrajectories)
+        updateTrajectories();
 }
 
 void Game::infoText(Vector2 pos, float font_size) {

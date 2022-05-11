@@ -16,6 +16,8 @@ private:
 
     const float sunRadius = 50.F;
 
+    bool showPredictedTrajectories;
+
     bool pauseGame = true;
 
     bool editSystem = false;
@@ -66,6 +68,8 @@ public:
     void run();
 
     void editSolarSystem();
+
+    void updateTrajectories();
 };
 
 
