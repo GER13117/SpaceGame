@@ -29,13 +29,13 @@ private:
 
     float surfaceGravity;
 
-    bool hasRing = false;
-
     float outerRingRadius = 0.F;
 
     float innerRingRadius = 0.F;
 
     Vector2 pos;
+
+    Vector2 initialPos;
 
     Vector2 velocity;
 
@@ -47,6 +47,8 @@ public:
     bool selected = false;
 
     bool getsModified = false;
+
+    bool hasRing = false;
 
     //Getter
     [[nodiscard]] float getMass() const;
@@ -94,6 +96,14 @@ public:
     float getSurfaceGravity() const;
 
     void setVVelocity(float newVelocity);
+
+    Color getRingColor();
+
+    float getInnerRadius() const;
+
+    float getOuterRadius() const;
+
+    Vector2 getInitialPosition();
 };
 
 

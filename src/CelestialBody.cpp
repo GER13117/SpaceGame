@@ -5,27 +5,29 @@
 #include "include/CelestialBody.h"
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, const Vector2 pos, Vector2 vel, Color color, const char *name)
-        : mass(calculateMass(surfaceGravity, radius)), surfaceGravity(surfaceGravity), radius(radius), pos(pos), velocity(vel), color(color), name(name) {}
+        : mass(calculateMass(surfaceGravity, radius)), surfaceGravity(surfaceGravity), radius(radius), pos(pos), velocity(vel), color(color), name(name) {
+    initialPos = this->pos;
+}
 
 CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, Vector2 pos, Vector2 vel, Color color, Color ring_color, const char *name)
         : mass(calculateMass(surfaceGravity, pRadius)), surfaceGravity(surfaceGravity), radius(pRadius),
           innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width),
-          pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {}
+          pos(pos), velocity(vel), color(color), ringColor(ring_color), name(name), hasRing(true) {initialPos = this->pos;}
 
 CelestialBody::CelestialBody(float surfaceGravity, float pRadius, float dist_to_surface, float ring_width, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color,
                              Color ring_color, const char *name)
         : mass(calculateMass(surfaceGravity, pRadius)), surfaceGravity(surfaceGravity), radius(pRadius),
           innerRingRadius(dist_to_surface + pRadius), outerRingRadius(dist_to_surface + pRadius + ring_width),
           pos({dist_to_sun, 0}), velocity({0, startVel(sun_surface_gravity, sun_radius, dist_to_sun)}),
-          color(color), ringColor(ring_color), name(name), hasRing(true) {
+          color(color), ringColor(ring_color), name(name), hasRing(true) {initialPos = this->pos;
 }
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, float dist_to_sun, float sun_radius, float sun_surface_gravity, Color color, const char *name)
         : mass(calculateMass(surfaceGravity, radius)), surfaceGravity(surfaceGravity), radius(radius), pos({dist_to_sun, 0}), velocity({0, startVel(sun_surface_gravity, sun_radius, dist_to_sun)}),
-          color(color), name(name) {}
+          color(color), name(name) {initialPos = this->pos;}
 
 CelestialBody::CelestialBody(float surfaceGravity, float radius, Color color, const char *name)
-        : mass(calculateMass(surfaceGravity, radius)), surfaceGravity(surfaceGravity), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {}
+        : mass(calculateMass(surfaceGravity, radius)), surfaceGravity(surfaceGravity), radius(radius), pos({0, 0}), velocity({0, 0}), color(color), name(name) {initialPos = this->pos;}
 
 CelestialBody::~CelestialBody() = default;
 
@@ -73,10 +75,10 @@ void CelestialBody::update(const float &dt) {
 
             velocity.x += accelerationX * dt;
             velocity.y += accelerationY * dt;
-            /* Collision
-             * if (this->velocity.dot(forceDir) > 0.F && sqrDist <= (this->getRadius() + e->radius) * (this->getRadius() + e->radius) + 1) {
-                this->velocity -= forceDir * this->velocity.dot(forceDir); //TODO: Implement
-            }*/
+            float tmpDotP = Vector2DotProduct(velocity, forceDir);
+            if (tmpDotP > 0.F && sqrDist <= (this->getRadius() + e->radius) * (this->getRadius() + e->radius) + 1) {
+                velocity = Vector2AddValue(Vector2Subtract(this->velocity, Vector2Scale(forceDir, tmpDotP)), 1);
+            }
         }
     }
 
@@ -134,4 +136,20 @@ float CelestialBody::getSurfaceGravity() const {
 
 void CelestialBody::setVVelocity(float newVelocity) {
     //TODO: Fancy Maths by using the position and new Velocity to get new VVelocity;
+}
+
+Color CelestialBody::getRingColor() {
+    return ringColor;
+}
+
+float CelestialBody::getInnerRadius() const {
+    return innerRingRadius;
+}
+
+float CelestialBody::getOuterRadius() const {
+    return outerRingRadius;
+}
+
+Vector2 CelestialBody::getInitialPosition() {
+    return initialPos;
 }

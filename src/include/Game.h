@@ -12,11 +12,19 @@ class Game {
 private:
     bool modifyPlanet;
 
+    int numSteps;
+
+    int numPlanets;
+
     const float sunGravity = 500.F;
 
     const float sunRadius = 50.F;
 
-    bool showPredictedTrajectories;
+    bool shouldCalculateTrajectories = true;
+
+    Vector2** linePoints;
+
+    bool showPredictedTrajectories = false;
 
     bool pauseGame = true;
 
@@ -36,7 +44,7 @@ private:
 
     float radiusSelectedPlanet;
 
-    const char* nameSelectedPlanet;
+    const char *nameSelectedPlanet;
 
     std::size_t planetIndex = 0;
 
@@ -56,6 +64,10 @@ private:
 
     void infoText(Vector2 pos, float font_size);
 
+    void updateTrajectories();
+
+    void drawTrajectories();
+
     void update(const float &dt);
 
     void render();
@@ -68,8 +80,6 @@ public:
     void run();
 
     void editSolarSystem();
-
-    void updateTrajectories();
 };
 
 

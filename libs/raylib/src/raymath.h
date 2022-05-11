@@ -164,6 +164,23 @@ typedef struct float16 {
 // Module Functions Definition - Utils math
 //----------------------------------------------------------------------------------
 
+RMAPI float Q_rsqrt(float number) {
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5F;
+
+    x2 = number * 0.5F;
+    y = number;
+    i = *(long *) &y;                           // evil floating point bit level hacking
+    i = 0x5f3759df - (i >> 1);                  // what the fuck?
+    y = *(float *) &i;
+    y = y * (threehalfs - (x2 * y * y));        // 1st iteration
+//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+
+    return y;
+}
+
+
 // Clamp float value
 RMAPI float Clamp(float value, float min, float max)
 {
@@ -342,14 +359,17 @@ RMAPI Vector2 Vector2Divide(Vector2 v1, Vector2 v2)
 RMAPI Vector2 Vector2Normalize(Vector2 v)
 {
     Vector2 result = { 0 };
-    float length = sqrtf((v.x*v.x) + (v.y*v.y));
-
-    if (length > 0)
+    //float length = sqrtf((v.x*v.x) + (v.y*v.y));
+    /*if (length > 0)
     {
-        float ilength = 1.0f/length;
+        //float ilength = 1.0f/length;
         result.x = v.x*ilength;
         result.y = v.y*ilength;
-    }
+    }*/
+
+    float ilength = Q_rsqrt((v.x*v.x) + (v.y*v.y));
+    result.x = v.x*ilength;
+    result.y = v.y*ilength;
 
     return result;
 }
