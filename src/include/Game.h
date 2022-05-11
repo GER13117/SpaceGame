@@ -10,17 +10,19 @@
 class Game {
 
 private:
+    float timeStep;
+
     bool modifyPlanet;
 
     int numSteps;
+
+    uint8_t frameCounter;
 
     int numPlanets;
 
     const float sunGravity = 500.F;
 
     const float sunRadius = 50.F;
-
-    bool shouldCalculateTrajectories = true;
 
     Vector2** linePoints;
 

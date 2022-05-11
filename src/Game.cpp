@@ -135,6 +135,9 @@ Game::Game() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
     initCelestialBodies();
+
+    numSteps = 8000;
+    timeStep = 1.F / 60.F;
 }
 
 Game::~Game() {
@@ -145,8 +148,6 @@ Game::~Game() {
 }
 
 void Game::updateTrajectories() {
-    numSteps = 7000;
-    float timeStep = 1.F / 60.F;
     std::vector<CelestialBody *> virtualBodies;
 
     for (int i = 0; i < celestialBodies.size(); i++) {
@@ -154,7 +155,7 @@ void Game::updateTrajectories() {
             float distToSurface = celestialBodies[i]->getInnerRadius() - celestialBodies[i]->getRadius();
             float ringWidth = celestialBodies[i]->getOuterRadius() - celestialBodies[i]->getInnerRadius();
             virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), distToSurface, ringWidth, celestialBodies[i]->getPosition(),
-                                                 celestialBodies[i]->getVVelocity(), celestialBodies[i]->getColor(), celestialBodies[i]->getRingColor(), celestialBodies[i]->getName()));
+                                                      celestialBodies[i]->getVVelocity(), celestialBodies[i]->getColor(), celestialBodies[i]->getRingColor(), celestialBodies[i]->getName()));
         } else {
             virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), celestialBodies[i]->getPosition(), celestialBodies[i]->getVVelocity(),
                                                       celestialBodies[i]->getColor(), celestialBodies[i]->getName()));
@@ -256,10 +257,6 @@ void Game::guiUpdateRender() {
     if (editSystem)
         editSolarSystem();
     showPredictedTrajectories = GuiToggle({10, 170, 120, 30}, "show trajectories", showPredictedTrajectories);
-    if (showPredictedTrajectories) {
-        if (GuiButton({10, 210, 120, 30}, "calculate trajectories"))
-            shouldCalculateTrajectories = true;
-    }
 }
 
 void Game::infoText(Vector2 pos, float font_size) {
@@ -282,10 +279,10 @@ void Game::infoText(Vector2 pos, float font_size) {
 
 
 void Game::update(const float &dt) {
+    frameCounter++;
     anyBodySelected = false;
-    if (shouldCalculateTrajectories) {
+    if (showPredictedTrajectories && frameCounter % 2 == 0) {
         updateTrajectories();
-        shouldCalculateTrajectories = false;
     }
 
     updateInput(dt);
@@ -342,7 +339,6 @@ void Game::run() {
         update(GetFrameTime());
         render();
     }
-
     CloseWindow();
 }
 
