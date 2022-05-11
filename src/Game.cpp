@@ -287,8 +287,10 @@ void Game::update(const float &dt) {
 
     updateInput(dt);
     if (!pauseGame) { //False clang-tidy
-        for (auto e: celestialBodies) {
-            e->update(dt);
+        for (int i = 0; i < timeWarp; ++i) {
+            for (auto e: celestialBodies) {
+                e->update(dt);
+            }
         }
     }
     posSun = celestialBodies[0]->getPosition();

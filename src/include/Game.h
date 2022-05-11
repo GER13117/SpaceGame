@@ -12,6 +12,8 @@ class Game {
 private:
     float timeStep;
 
+    int timeWarp = 100;
+
     bool modifyPlanet;
 
     int numSteps;
