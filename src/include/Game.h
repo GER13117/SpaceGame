@@ -5,28 +5,23 @@
 #ifndef SPACEGAME_GAME_H
 #define SPACEGAME_GAME_H
 
-#include "CelestialBody.h"
-
+#include "Trajectories.h"
 class Game {
 
 private:
-    float timeStep;
+    Trajectories *trajectories;
 
-    int timeWarp = 100;
+    float physicsTime;
 
-    bool modifyPlanet;
+    int timeWarp = 1;
 
     int numSteps;
 
-    uint8_t frameCounter;
-
-    int numPlanets;
+    uint8_t frameCounter = 0;
 
     const float sunGravity = 500.F;
 
     const float sunRadius = 50.F;
-
-    Vector2** linePoints;
 
     bool showPredictedTrajectories = false;
 
@@ -56,6 +51,8 @@ private:
 
     void initCelestialBodies();
 
+    void initVariables();
+
     void resetSolarSystem();
 
     float startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance);
@@ -66,11 +63,11 @@ private:
 
     void updateInput(const float &dt);
 
-    void infoText(Vector2 pos, float font_size);
+    void setNewCelestialBodies();
 
-    void updateTrajectories();
+    void inWorldInfoText(Vector2 pos, float font_size);
 
-    void drawTrajectories();
+    void initCamera();
 
     void update(const float &dt);
 
@@ -84,6 +81,8 @@ public:
     void run();
 
     void editSolarSystem();
+
+    void onScreenText();
 };
 
 

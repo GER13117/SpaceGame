@@ -15,16 +15,7 @@ void Game::initWindow() {
     InitWindow(1920, 1080, "Space Game");
     SetTargetFPS(60);
 
-    //Start Window in FullScreen
-    int display = GetCurrentMonitor();
-    //SetWindowSize(GetMonitorWidth(display), GetMonitorHeight(display));
     ToggleFullscreen();
-}
-
-float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
-    if (orbitDistance < 0)
-        return -sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / -orbitDistance);
-    return sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / orbitDistance);
 }
 
 void Game::initCelestialBodies() {
@@ -58,9 +49,42 @@ void Game::initCelestialBodies() {
                                                 RAYWHITE, "Rasmus"));
 
 
+    setNewCelestialBodies();
+}
+
+void Game::initCamera() {
+    camera = {0};
+    camera.target = {0.f, 0.f};
+    camera.offset = {(float) GetScreenWidth() / 2.0f, (float) GetScreenHeight() / 2.0f};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+}
+
+void Game::initVariables() {
+    numSteps = 8000;
+    physicsTime = 1.F / 60.F;
+}
+
+
+Game::Game() {
+    initVariables();
+    initWindow();
+    initCamera();
+    trajectories = new Trajectories(numSteps);
+    initCelestialBodies();
+}
+
+Game::~Game() {
     for (auto e: celestialBodies) {
-        e->setOtherCelestialBodies(celestialBodies);
+        delete e;
     }
+    celestialBodies.clear();
+}
+
+float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
+    if (orbitDistance < 0)
+        return -sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / -orbitDistance);
+    return sqrt(centralSurfaceGravity * centralBodyRadius * centralBodyRadius / orbitDistance);
 }
 
 void Game::resetSolarSystem() {
@@ -73,7 +97,7 @@ void Game::resetSolarSystem() {
 
     pauseGame = true;
 
-    updateTrajectories();
+    this->trajectories->update(physicsTime);
 }
 
 void Game::editSolarSystem() {
@@ -121,74 +145,7 @@ void Game::editSolarSystem() {
         }
     }
 
-    for (auto e: celestialBodies) {
-        e->setOtherCelestialBodies(celestialBodies);
-    }
-}
-
-
-Game::Game() {
-    initWindow();
-    camera = {0};
-    camera.target = {0.f, 0.f};
-    camera.offset = {(float) GetScreenWidth() / 2.0f, (float) GetScreenHeight() / 2.0f};
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
-    initCelestialBodies();
-
-    numSteps = 8000;
-    timeStep = 1.F / 60.F;
-}
-
-Game::~Game() {
-    for (auto e: celestialBodies) {
-        delete e;
-    }
-    celestialBodies.clear();
-}
-
-void Game::updateTrajectories() {
-    std::vector<CelestialBody *> virtualBodies;
-
-    for (int i = 0; i < celestialBodies.size(); i++) {
-        if (celestialBodies[i]->hasRing) {
-            float distToSurface = celestialBodies[i]->getInnerRadius() - celestialBodies[i]->getRadius();
-            float ringWidth = celestialBodies[i]->getOuterRadius() - celestialBodies[i]->getInnerRadius();
-            virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), distToSurface, ringWidth, celestialBodies[i]->getPosition(),
-                                                      celestialBodies[i]->getVVelocity(), celestialBodies[i]->getColor(), celestialBodies[i]->getRingColor(), celestialBodies[i]->getName()));
-        } else {
-            virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), celestialBodies[i]->getPosition(), celestialBodies[i]->getVVelocity(),
-                                                      celestialBodies[i]->getColor(), celestialBodies[i]->getName()));
-        }
-    }
-
-    numPlanets = virtualBodies.size();
-    for (auto e: virtualBodies) {
-        e->setOtherCelestialBodies(virtualBodies);
-    }
-
-    linePoints = new Vector2 *[numPlanets];
-    for (int i = 0; i < numPlanets; i++) {
-        linePoints[i] = new Vector2[numSteps];
-    }
-
-    for (int step = 0; step < numSteps; step++) {
-        for (int planet = 0; planet < numPlanets; planet++) {
-            virtualBodies[planet]->update(timeStep);
-            linePoints[planet][step] = virtualBodies[planet]->getPosition();
-        }
-    }
-
-    for (auto e: virtualBodies) {
-        delete e;
-    }
-    virtualBodies.clear();
-}
-
-void Game::drawTrajectories() {
-    for (int body = 0; body < numPlanets; body++) {
-        DrawLineStrip(linePoints[body], numSteps, celestialBodies[body]->getColor());
-    }
+    setNewCelestialBodies();
 }
 
 void Game::updateInput(const float &dt) {
@@ -206,7 +163,7 @@ void Game::updateInput(const float &dt) {
     }
 
     //Zoom in and out
-    if (GetMouseWheelMove() < 0 && camera.zoom >= 0.1F)
+    if (GetMouseWheelMove() < 0 && camera.zoom > 0.1F)
         camera.zoom -= 0.1F;
     if (GetMouseWheelMove() > 0)
         camera.zoom += 0.1F;
@@ -257,9 +214,13 @@ void Game::guiUpdateRender() {
     if (editSystem)
         editSolarSystem();
     showPredictedTrajectories = GuiToggle({10, 170, 120, 30}, "show trajectories", showPredictedTrajectories);
+
+    timeWarp = (int) GuiSlider({static_cast<float>(GetScreenWidth() - 120 - 30), 10, 120, 30}, "time-warp", TextFormat("%0.i", timeWarp), (float) timeWarp, 1, 150);
+
 }
 
-void Game::infoText(Vector2 pos, float font_size) {
+void Game::inWorldInfoText(Vector2 pos, float font_size) {
+    //on planet
     DrawTextEx(GetFontDefault(), nameSelectedPlanet,
                pos,
                font_size + 10.F, (font_size + 10.F) / 10.F, WHITE);
@@ -277,12 +238,20 @@ void Game::infoText(Vector2 pos, float font_size) {
                font_size, font_size / 10.F, WHITE);
 }
 
+void Game::onScreenText() {
+    //Top
+    DrawText(celestialBodies[planetIndex]->getName(),
+             GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
+
+    DrawFPS(10, 10);
+}
+
 
 void Game::update(const float &dt) {
     frameCounter++;
     anyBodySelected = false;
     if (showPredictedTrajectories && frameCounter % 2 == 0) {
-        updateTrajectories();
+        this->trajectories->update(dt);
     }
 
     updateInput(dt);
@@ -317,31 +286,34 @@ void Game::render() {
     BeginMode2D(camera);
 
     if (showPredictedTrajectories)
-        drawTrajectories();
+        this->trajectories->render();
 
     for (auto e: celestialBodies) {
         e->render();
     }
     if (anyBodySelected)
-        infoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 20);
+        inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
 
     EndMode2D();
 
     guiUpdateRender();
-
-    DrawText(celestialBodies[planetIndex]->getName(),
-             GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
-
-    DrawFPS(10, 10);
+    onScreenText();
     EndDrawing();
 }
 
 void Game::run() {
     while (!WindowShouldClose()) {
-        update(GetFrameTime());
+        update(physicsTime);
         render();
     }
     CloseWindow();
+}
+
+void Game::setNewCelestialBodies() {
+    this->trajectories->setCelestialBodies(celestialBodies);
+    for (auto e: celestialBodies) {
+        e->setOtherCelestialBodies(celestialBodies);
+    }
 }
 
 #pragma clang diagnostic pop

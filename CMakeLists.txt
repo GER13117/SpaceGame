@@ -7,8 +7,8 @@ add_subdirectory(libs/raylib)
 
 add_executable(${PROJECT_NAME} src/main.cpp
         src/Game.cpp src/include/Game.h
-        src/CelestialBody.cpp
-        src/include/CelestialBody.h)
+        src/CelestialBody.cpp src/include/CelestialBody.h
+        src/Trajectories.cpp src/include/Trajectories.h)
 
 
 target_link_libraries(${PROJECT_NAME} raylib)
