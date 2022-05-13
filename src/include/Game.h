@@ -9,6 +9,8 @@
 class Game {
 
 private:
+    bool allowEdit = true;
+
     Trajectories *trajectories;
 
     float physicsTime;

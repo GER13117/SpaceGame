@@ -134,7 +134,8 @@ float CelestialBody::getSurfaceGravity() const {
     return this->surfaceGravity;
 }
 
-void CelestialBody::setVVelocity(float newVelocity) {
+void CelestialBody::setVVelocity(Vector2 newVVelocity) {
+    this->velocity = newVVelocity;
     //TODO: Fancy Maths by using the position and new Velocity to get new VVelocity;
 }
 

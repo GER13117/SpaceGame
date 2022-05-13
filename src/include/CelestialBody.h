@@ -95,7 +95,7 @@ public:
 
     float getSurfaceGravity() const;
 
-    void setVVelocity(float newVelocity);
+    void setVVelocity(Vector2 newVVelocity);
 
     Color getRingColor();
 

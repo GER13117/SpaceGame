@@ -23,7 +23,7 @@ void Game::initCelestialBodies() {
     //Starting velocity = sqr(G * M_central / R)
     //Sun
     celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
-
+    /*
     //Planets
     celestialBodies.push_back(new CelestialBody(10.F, 20.F, 200, sunRadius, sunGravity, GREEN, "Earth"));
 
@@ -46,7 +46,7 @@ void Game::initCelestialBodies() {
     celestialBodies.push_back(new CelestialBody(1.F, 7.F, {1000, -70},
                                                 {startVel(9.F, 30.F, -70.F),
                                                  startVel(sunGravity, sunRadius, 1000.F)},
-                                                RAYWHITE, "Rasmus"));
+                                                RAYWHITE, "Rasmus"));*/
 
 
     setNewCelestialBodies();
@@ -137,9 +137,11 @@ void Game::editSolarSystem() {
                 }
             }
 
-            e->setVVelocity(GuiSlider({10, 300 + 220, 120, 30}, "", "", e->getVelocity(), 1, 200));
+            e->setVVelocity({
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", "x-velocity", e->getVVelocity().x, 0.F, 200),
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30}, "", "y-velocity", e->getVVelocity().y, 0.F, 200)});
 
-            if (GuiButton({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
+            if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
                 std::cout << "delete e;" << std::endl;
             } //TODO: Fix
         }
@@ -206,14 +208,21 @@ void Game::updateInput(const float &dt) {
 }
 
 void Game::guiUpdateRender() {
-    if (GuiButton({10, 50, 120, 30}, pauseGame ? "continue" : "pause")) //False clang-tidy
+    if (GuiButton({10, 50, 120, 30}, pauseGame ? "continue" : "pause")){
+        allowEdit = false;
         pauseGame = !pauseGame;
-    if (GuiButton({10, 90, 120, 30}, "reset solar system")) //False clang-tidy
+    }
+
+    showPredictedTrajectories = GuiToggle({10, 90, 120, 30}, "show trajectories", showPredictedTrajectories);
+    if (GuiButton({10, 130, 120, 30}, "reset solar system")) {
         resetSolarSystem();
-    editSystem = GuiToggle({10, 130, 120, 30}, "edit solar system", editSystem);
-    if (editSystem)
-        editSolarSystem();
-    showPredictedTrajectories = GuiToggle({10, 170, 120, 30}, "show trajectories", showPredictedTrajectories);
+        allowEdit = true;
+    }
+    if (allowEdit) {
+        editSystem = GuiToggle({10, 170, 120, 30}, "edit solar system", editSystem);
+        if (editSystem)
+            editSolarSystem();
+    }
 
     timeWarp = (int) GuiSlider({static_cast<float>(GetScreenWidth() - 120 - 30), 10, 120, 30}, "time-warp", TextFormat("%0.i", timeWarp), (float) timeWarp, 1, 150);
 
