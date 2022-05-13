@@ -14,7 +14,9 @@
 void Game::initWindow() {
     InitWindow(1920, 1080, "Space Game");
     SetTargetFPS(60);
+    int monitor = GetCurrentMonitor();
 
+    SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
     ToggleFullscreen();
 }
 
@@ -98,12 +100,26 @@ void Game::resetSolarSystem() {
 void Game::editSolarSystem() {
     pauseGame = true;
     //TODO: Implement CelestialBody Constructor that calculates the velocity using the angle of the planet
-
-    if (IsMouseButtonPressed(0) &&
-        !CheckCollisionPointRec(GetMousePosition(), {0, 0, 300, static_cast<float>(GetScreenHeight())})) { //TODO: Planet add modus?
-        float fDistToSun = Vector2Distance(celestialBodies[0]->getPosition(),
-                                           GetScreenToWorld2D(GetMousePosition(), camera));
-        celestialBodies.push_back(new CelestialBody(10.F, 20.F, fDistToSun, sunRadius, sunGravity, GREEN, "Earth"));
+    //TODO: Code schön machen
+    if (IsMouseButtonPressed(0)
+        && !CheckCollisionPointRec(GetMousePosition(), {0, 0, 300, static_cast<float>(GetScreenHeight())})) {
+        if (std::any_of(celestialBodies.begin(), celestialBodies.end(),
+                        [this](CelestialBody *body) {
+                            return CheckCollisionPointCircle(GetMousePosition(),
+                                                             GetWorldToScreen2D(body->getPosition(), camera),
+                                                             body->getRadius() * camera.zoom);
+                        })) {
+            std::vector<CelestialBody *>::iterator it;
+            it = std::remove_if(celestialBodies.begin(), celestialBodies.end(), [this](CelestialBody *body) {
+                return CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(body->getPosition(), camera),
+                                                 body->getRadius() * camera.zoom);
+            });
+            celestialBodies.erase(it);
+        } else {
+            float fDistToSun = Vector2Distance(celestialBodies[0]->getPosition(),
+                                               GetScreenToWorld2D(GetMousePosition(), camera));
+            celestialBodies.push_back(new CelestialBody(10.F, 20.F, fDistToSun, sunRadius, sunGravity, GREEN, "Earth"));
+        }
     }
 
     if (IsMouseButtonPressed(1)) {
@@ -133,8 +149,10 @@ void Game::editSolarSystem() {
             }
 
             e->setVVelocity({
-                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", "x-velocity", e->getVVelocity().x, 0.F, 200),
-                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30}, "", "y-velocity", e->getVVelocity().y, 0.F, 200)});
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", "x-velocity",
+                                              e->getVVelocity().x, 0.F, 200),
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30}, "", "y-velocity",
+                                              e->getVVelocity().y, 0.F, 200)});
 
             if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
                 std::cout << "delete e;" << std::endl;
@@ -204,7 +222,8 @@ void Game::updateInput(const float &dt) {
 }
 
 void Game::guiUpdateRender() {
-    if (GuiButton({10, 50, 120, 30}, pauseGame ? GuiIconText(RICON_PLAYER_PLAY, "continue") : GuiIconText(RICON_PLAYER_PAUSE, "pause"))){
+    if (GuiButton({10, 50, 120, 30},
+                  pauseGame ? GuiIconText(RICON_PLAYER_PLAY, "continue") : GuiIconText(RICON_PLAYER_PAUSE, "pause"))) {
         allowEdit = false;
         pauseGame = !pauseGame;
     }
@@ -225,7 +244,8 @@ void Game::guiUpdateRender() {
             editSolarSystem();
     }
 
-    timeWarp = (int) GuiSlider({static_cast<float>(GetScreenWidth() - 120 - 30), 10, 120, 30}, "time-warp", TextFormat("%0.i", timeWarp), (float) timeWarp, 1, 150);
+    timeWarp = (int) GuiSlider({static_cast<float>(GetScreenWidth() - 120 - 30), 10, 120, 30}, "time-warp",
+                               TextFormat("%0.i", timeWarp), (float) timeWarp, 1, 150);
 
 }
 
