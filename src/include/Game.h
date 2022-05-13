@@ -51,6 +51,8 @@ private:
 
     std::vector<CelestialBody *> celestialBodies;
 
+    void clearAllCelestialBodies();
+
     void initCelestialBodies();
 
     void initVariables();

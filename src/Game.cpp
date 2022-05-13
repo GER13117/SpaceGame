@@ -9,7 +9,7 @@
 
 #define RAYGUI_IMPLEMENTATION
 
-#include "extras/raygui.h"
+#include "include/cyber.h"
 
 void Game::initWindow() {
     InitWindow(1920, 1080, "Space Game");
@@ -23,7 +23,7 @@ void Game::initCelestialBodies() {
     //Starting velocity = sqr(G * M_central / R)
     //Sun
     celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
-    /*
+
     //Planets
     celestialBodies.push_back(new CelestialBody(10.F, 20.F, 200, sunRadius, sunGravity, GREEN, "Earth"));
 
@@ -46,7 +46,7 @@ void Game::initCelestialBodies() {
     celestialBodies.push_back(new CelestialBody(1.F, 7.F, {1000, -70},
                                                 {startVel(9.F, 30.F, -70.F),
                                                  startVel(sunGravity, sunRadius, 1000.F)},
-                                                RAYWHITE, "Rasmus"));*/
+                                                RAYWHITE, "Rasmus"));
 
 
     setNewCelestialBodies();
@@ -72,13 +72,11 @@ Game::Game() {
     initCamera();
     trajectories = new Trajectories(numSteps);
     initCelestialBodies();
+    GuiLoadStyleCyber();
 }
 
 Game::~Game() {
-    for (auto e: celestialBodies) {
-        delete e;
-    }
-    celestialBodies.clear();
+    clearAllCelestialBodies();
 }
 
 float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float orbitDistance) {
@@ -88,10 +86,7 @@ float Game::startVel(float centralSurfaceGravity, float centralBodyRadius, float
 }
 
 void Game::resetSolarSystem() {
-    for (auto e: celestialBodies) {
-        delete e;
-    }
-    celestialBodies.clear();
+    clearAllCelestialBodies();
 
     initCelestialBodies();
 
@@ -187,6 +182,7 @@ void Game::updateInput(const float &dt) {
             e->getsModified = false;
         }
         pauseGame = !pauseGame;
+        allowEdit = false;
     }
 
     if (IsKeyPressed(KEY_R)) {
@@ -208,14 +204,19 @@ void Game::updateInput(const float &dt) {
 }
 
 void Game::guiUpdateRender() {
-    if (GuiButton({10, 50, 120, 30}, pauseGame ? "continue" : "pause")){
+    if (GuiButton({10, 50, 120, 30}, pauseGame ? GuiIconText(RICON_PLAYER_PLAY, "continue") : GuiIconText(RICON_PLAYER_PAUSE, "pause"))){
         allowEdit = false;
         pauseGame = !pauseGame;
     }
 
     showPredictedTrajectories = GuiToggle({10, 90, 120, 30}, "show trajectories", showPredictedTrajectories);
-    if (GuiButton({10, 130, 120, 30}, "reset solar system")) {
+    if (GuiButton({10, 130, 59, 30}, "default")) {
         resetSolarSystem();
+        allowEdit = true;
+    }
+    if (GuiButton({72, 130, 59, 30}, "clear")) {
+        clearAllCelestialBodies();
+        celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
         allowEdit = true;
     }
     if (allowEdit) {
@@ -323,6 +324,13 @@ void Game::setNewCelestialBodies() {
     for (auto e: celestialBodies) {
         e->setOtherCelestialBodies(celestialBodies);
     }
+}
+
+void Game::clearAllCelestialBodies() {
+    for (auto e: celestialBodies) {
+        delete e;
+    }
+    celestialBodies.clear();
 }
 
 #pragma clang diagnostic pop
