@@ -12,14 +12,13 @@
 #include "include/cyber.h"
 
 void Game::initWindow() {
+    SetConfigFlags(FLAG_VSYNC_HINT);
     InitWindow(1920, 1080, "Space Game");
     SetTargetFPS(60);
     int monitor = GetCurrentMonitor();
 
     SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
     ToggleFullscreen();
-
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
 }
 
 void Game::initCelestialBodies() {
@@ -96,7 +95,7 @@ void Game::resetSolarSystem() {
 
     pauseGame = true;
 
-    this->trajectories->update(physicsTime);
+    this->trajectories->update(physicsTime, planetIndex);
 }
 
 void Game::editSolarSystem() {
@@ -119,7 +118,7 @@ void Game::editSolarSystem() {
         } else {
             float fDistToSun = Vector2Distance(celestialBodies[0]->getPosition(),
                                                GetScreenToWorld2D(GetMousePosition(), camera));
-            celestialBodies.push_back(new CelestialBody(10.F, 20.F, fDistToSun, sunRadius, sunGravity, GREEN, "Earth"));
+            celestialBodies.push_back(new CelestialBody(10.F, 20.F, GetScreenToWorld2D(GetMousePosition(), camera), {0,0}, GREEN, "Earth"));
         }
     }
 
@@ -145,10 +144,10 @@ void Game::editSolarSystem() {
             e->recalculateMass();
 
             e->setVVelocity({
-                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", "x-velocity",
-                                              e->getVVelocity().x, 0.F, 200),
-                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30}, "", "y-velocity",
-                                              e->getVVelocity().y, 0.F, 200)});
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", TextFormat("x-velocity: %0.3F", e->getVVelocity().x),
+                                              e->getVVelocity().x, -200.F, 200),
+                                    GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30}, "", TextFormat("y-velocity: %0.3F", e->getVVelocity().y),
+                                              e->getVVelocity().y, -200.F, 200)});
 
             if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
                 auto it = std::find(celestialBodies.begin(), celestialBodies.end(), e);
@@ -275,10 +274,11 @@ void Game::onScreenText() {
 
 
 void Game::update(const float &dt) {
+
     frameCounter++;
     anyBodySelected = false;
     if (showPredictedTrajectories && frameCounter % 2 == 0) {
-        this->trajectories->update(dt);
+        this->trajectories->update(dt, planetIndex);
     }
 
     updateInput(dt);

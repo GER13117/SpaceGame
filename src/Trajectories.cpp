@@ -11,7 +11,7 @@ void Trajectories::setCelestialBodies(std::vector<CelestialBody *> &celestial_bo
 
 }
 
-void Trajectories::update(const float &dt) {
+void Trajectories::update(const float &dt, int centralPlanet) {
     for (int i = 0; i < celestialBodies.size(); i++) {
         if (celestialBodies[i]->hasRing) {
             float distToSurface = celestialBodies[i]->getInnerRadius() - celestialBodies[i]->getRadius();
@@ -32,12 +32,26 @@ void Trajectories::update(const float &dt) {
     linePoints = new Vector2 *[numPlanets];
     for (int i = 0; i < numPlanets; i++) {
         linePoints[i] = new Vector2[numSteps];
+        if (i == centralPlanet) {
+            linePoints[i][0] = virtualBodies.at(i)->getPosition();
+        }
     }
 
     for (int step = 0; step < numSteps; step++) {
         for (int planet = 0; planet < numPlanets; planet++) {
             virtualBodies[planet]->update(dt);
-            linePoints[planet][step] = virtualBodies[planet]->getPosition();
+
+
+            Vector2 newPos = virtualBodies.at(planet)->getPosition();
+            /*Vector2 referenceFrameOffset = Vector2Subtract(linePoints[centralPlanet][step], linePoints[centralPlanet][0]);
+
+            newPos = Vector2Subtract(newPos, referenceFrameOffset);
+
+            if (planet == centralPlanet) {
+                newPos = linePoints[planet][0];
+            }*/
+            linePoints[planet][step] = newPos;
+
         }
     }
 

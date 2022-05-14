@@ -22,7 +22,7 @@ public:
 
     void setCelestialBodies(std::vector<CelestialBody *> &celestial_bodies);
 
-    void update(const float &dt);
+    void update(const float &dt, int centralPlanet);
 
     void render();
 
