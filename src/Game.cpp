@@ -18,6 +18,8 @@ void Game::initWindow() {
 
     SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
     ToggleFullscreen();
+
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
 }
 
 void Game::initCelestialBodies() {
@@ -109,8 +111,7 @@ void Game::editSolarSystem() {
                                                              GetWorldToScreen2D(body->getPosition(), camera),
                                                              body->getRadius() * camera.zoom);
                         })) {
-            std::vector<CelestialBody *>::iterator it;
-            it = std::remove_if(celestialBodies.begin(), celestialBodies.end(), [this](CelestialBody *body) {
+            auto it = std::remove_if(celestialBodies.begin(), celestialBodies.end(), [this](CelestialBody *body) {
                 return CheckCollisionPointCircle(GetMousePosition(), GetWorldToScreen2D(body->getPosition(), camera),
                                                  body->getRadius() * camera.zoom);
             });
@@ -139,14 +140,9 @@ void Game::editSolarSystem() {
                     {10, 300, 200, 200},
                     e->getColor()));
 
-            e->setRadius(GuiSlider({10, 300 + 220, 120, 30}, "", "", e->getRadius(), 1, 200));
-            e->setSurfaceGravity(GuiSlider({10, 300 + 220 + 40, 120, 30}, "", "", e->getSurfaceGravity(), 1, 200));
-            if (GuiButton({10, 300 + 220 + 40 + 40, 120, 30}, "Recalculate Mass")) {
-                e->recalculateMass();
-                if (e == celestialBodies[0]) {
-                    //Update Velocity for other Planets
-                }
-            }
+            e->setRadius(GuiSlider({10, 300 + 220, 120, 30}, "", TextFormat("radius: %0.1f", e->getRadius()), e->getRadius(), 1, 200));
+            e->setSurfaceGravity(GuiSlider({10, 300 + 220 + 40, 120, 30}, "", TextFormat("gravity: %0.1f", e->getSurfaceGravity()), e->getSurfaceGravity(), 1, 200));
+            e->recalculateMass();
 
             e->setVVelocity({
                                     GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30}, "", "x-velocity",
@@ -155,8 +151,9 @@ void Game::editSolarSystem() {
                                               e->getVVelocity().y, 0.F, 200)});
 
             if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
-                std::cout << "delete e;" << std::endl;
-            } //TODO: Fix
+                auto it = std::find(celestialBodies.begin(), celestialBodies.end(), e);
+                celestialBodies.erase(it);
+            }
         }
     }
 
