@@ -9,6 +9,10 @@
 class Game {
 
 private:
+    Shader bloomShader;
+
+    RenderTexture2D target;
+
     bool allowEdit = true;
 
     Trajectories *trajectories;
@@ -71,7 +75,7 @@ private:
 
     void inWorldInfoText(Vector2 pos, float font_size);
 
-    void initCamera();
+    void initRenderElements();
 
     void update(const float &dt);
 

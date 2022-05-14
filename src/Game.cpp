@@ -55,12 +55,15 @@ void Game::initCelestialBodies() {
     setNewCelestialBodies();
 }
 
-void Game::initCamera() {
+void Game::initRenderElements() {
     camera = {0};
     camera.target = {0.f, 0.f};
     camera.offset = {(float) GetScreenWidth() / 2.0f, (float) GetScreenHeight() / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
+
+    bloomShader = LoadShader(0, "../resources/shader/bloom.fs");
+    target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 }
 
 void Game::initVariables() {
@@ -72,10 +75,12 @@ void Game::initVariables() {
 Game::Game() {
     initVariables();
     initWindow();
-    initCamera();
+    initRenderElements();
     trajectories = new Trajectories(numSteps);
     initCelestialBodies();
     GuiLoadStyleCyber();
+
+
 }
 
 Game::~Game() {
@@ -306,25 +311,31 @@ void Game::update(const float &dt) {
 }
 
 void Game::render() {
+    BeginTextureMode(target);
+        ClearBackground({0, 1, 23});
+        //World viewed by the camera
+        BeginMode2D(camera);
+            if (showPredictedTrajectories)
+                this->trajectories->render();
+
+            for (auto e: celestialBodies) {
+                e->render();
+            }
+            if (anyBodySelected)
+                inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
+
+        EndMode2D();
+    EndTextureMode();
+
     BeginDrawing();
-    ClearBackground({0, 1, 23});
+        ClearBackground({0, 1, 23});
 
-    //World viewed by the camera
-    BeginMode2D(camera);
+        BeginShaderMode(bloomShader);
+            DrawTextureRec(target.texture, {0,0, (float)target.texture.width, (float)-target.texture.height}, {0,0}, WHITE);
+        EndShaderMode();
 
-    if (showPredictedTrajectories)
-        this->trajectories->render();
-
-    for (auto e: celestialBodies) {
-        e->render();
-    }
-    if (anyBodySelected)
-        inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
-
-    EndMode2D();
-
-    guiUpdateRender();
-    onScreenText();
+        guiUpdateRender();
+        onScreenText();
     EndDrawing();
 }
 
@@ -333,6 +344,8 @@ void Game::run() {
         update(physicsTime);
         render();
     }
+    UnloadShader(bloomShader);
+    UnloadRenderTexture(target);
     CloseWindow();
 }
 
