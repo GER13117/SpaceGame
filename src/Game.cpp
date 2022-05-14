@@ -62,7 +62,7 @@ void Game::initRenderElements() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    bloomShader = LoadShader(0, "../resources/shader/bloom.fs");
+    bloomShader = LoadShader(0, "../resources/shader/bloom.frag");
     target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 }
 
@@ -311,6 +311,7 @@ void Game::update(const float &dt) {
 }
 
 void Game::render() {
+    //Rendertexture for shader
     BeginTextureMode(target);
         ClearBackground({0, 1, 23});
         //World viewed by the camera
@@ -321,9 +322,6 @@ void Game::render() {
             for (auto e: celestialBodies) {
                 e->render();
             }
-            if (anyBodySelected)
-                inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
-
         EndMode2D();
     EndTextureMode();
 
@@ -333,6 +331,11 @@ void Game::render() {
         BeginShaderMode(bloomShader);
             DrawTextureRec(target.texture, {0,0, (float)target.texture.width, (float)-target.texture.height}, {0,0}, WHITE);
         EndShaderMode();
+
+        BeginMode2D(camera);
+            if (anyBodySelected)
+                inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
+        EndMode2D();
 
         guiUpdateRender();
         onScreenText();
