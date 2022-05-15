@@ -5,6 +5,7 @@
 #ifndef SPACEGAME_GAME_H
 #define SPACEGAME_GAME_H
 
+#include <algorithm>
 #include "Trajectories.h"
 class Game {
 
