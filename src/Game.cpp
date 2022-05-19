@@ -62,7 +62,7 @@ void Game::initRenderElements() {
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    bloomShader = LoadShader(0, "../resources/shader/bloom.frag");
+    bloomShader = LoadShader(0, "../resources/shader/bloom.glsl");
     target = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 }
 
