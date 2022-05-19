@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/SpaceGame.dir/src/main.cpp.o CMakeFiles/SpaceGame.dir/src/Game.cpp.o CMakeFiles/SpaceGame.dir/src/CelestialBody.cpp.o CMakeFiles/SpaceGame.dir/src/Trajectories.cpp.o -o SpaceGame  libs/raylib/raylib/libraylib.a -lm -lpthread /usr/lib/libGL.so /usr/lib/libGLU.so libs/raylib/raylib/external/glfw/src/libglfw3.a /usr/lib/librt.a -lm -ldl 
