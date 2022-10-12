@@ -72,6 +72,7 @@ void Game::initRenderElements() {
 void Game::initVariables() {
     numSteps = 8000;
     physicsTime = 1.F / 60.F;
+    sideGuiWidth = 180;
 }
 
 
@@ -140,26 +141,26 @@ void Game::editSolarSystem() {
     for (auto e: celestialBodies) {
         if (e->getsModified) {
             e->setColor(GuiColorPicker(
-                    {10, 300, 200, 200},
+                    {10, 300, sideGuiWidth, sideGuiWidth},
                     e->getColor()));
 
-            e->setRadius(GuiSlider({10, 300 + 220, 120, 30},
+            e->setRadius(GuiSlider({10, 300 + 220, sideGuiWidth, 30},
                                    "", TextFormat("radius: %0.1f", e->getRadius()),
                                    e->getRadius(), 1, 200));
-            e->setSurfaceGravity(GuiSlider({10, 300 + 220 + 40, 120, 30},
+            e->setSurfaceGravity(GuiSlider({10, 300 + 220 + 40, sideGuiWidth, 30},
                                            "", TextFormat("gravity: %0.1f", e->getSurfaceGravity()),
-                                           e->getSurfaceGravity(), 1, 200));
+                                           e->getSurfaceGravity(), 1, 1000));
             e->recalculateMass();
 
             e->setVVelocity(
-                    {GuiSlider({10, 300 + 220 + 40 + 40 + 40, 120, 30},
+                    {GuiSlider({10, 300 + 220 + 40 + 40 + 40, sideGuiWidth, 30},
                                "", TextFormat("x-velocity: %0.3F", e->getVVelocity().x),
-                               e->getVVelocity().x, -200.F, 200),
-                     GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, 120, 30},
+                               e->getVVelocity().x, -200.F, 180),
+                     GuiSlider({10, 300 + 220 + 40 + 40 + 40 + 40, sideGuiWidth, 30},
                                "", TextFormat("y-velocity: %0.3F", e->getVVelocity().y),
                                e->getVVelocity().y, -200.F, 200)});
 
-            if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, 120, 30}, "Delete Body")) {
+            if (GuiButton({10, 300 + 220 + 40 + 40 + 40 + 40 + 40, sideGuiWidth / 2, 30}, "Delete Body")) {
                 auto it = std::find(celestialBodies.begin(), celestialBodies.end(), e);
                 celestialBodies.erase(it);
             }
@@ -228,31 +229,34 @@ void Game::updateInput(const float &dt) {
 }
 
 void Game::guiUpdateRender() {
-    if (GuiButton({10, 50, 120, 30},
-                  pauseGame ? GuiIconText(RICON_PLAYER_PLAY, "continue") : GuiIconText(RICON_PLAYER_PAUSE, "pause"))) {
+
+    if (GuiButton({10, 10, 30, 30}, GuiIconText(RICON_PLAYER_PREVIOUS, "")) && timeWarp > 1)
+        timeWarp--;
+    if (GuiButton({10 + 40 + 40, 10, 30, 30}, GuiIconText(RICON_PLAYER_NEXT, "")))
+        timeWarp++;
+
+    if (GuiButton({10 + 40, 10, 30, 30},
+                  pauseGame ? GuiIconText(RICON_PLAYER_PLAY, "") : GuiIconText(RICON_PLAYER_PAUSE,
+                                                                               ""))) { //TODO: Better way?
         allowEdit = false;
         pauseGame = !pauseGame;
     }
 
-    showPredictedTrajectories = GuiToggle({10, 90, 120, 30}, "show trajectories", showPredictedTrajectories);
-    if (GuiButton({10, 130, 59, 30}, "default")) {
+    showPredictedTrajectories = GuiToggle({10, 50, 120, 30}, "show trajectories", showPredictedTrajectories);
+    if (GuiButton({10, 50 + 40, 59, 30}, "default")) {
         resetSolarSystem();
         allowEdit = true;
     }
-    if (GuiButton({72, 130, 59, 30}, "clear")) {
+    if (GuiButton({72, 50 + 40, 59, 30}, "clear")) {
         clearAllCelestialBodies();
         celestialBodies.push_back(new CelestialBody(sunGravity, sunRadius, GOLD, "Sun"));
         allowEdit = true;
     }
     if (allowEdit) {
-        editSystem = GuiToggle({10, 170, 120, 30}, "edit solar system", editSystem);
+        editSystem = GuiToggle({10, 50 + 40 + 40, 120, 30}, "edit solar system", editSystem);
         if (editSystem)
             editSolarSystem();
     }
-
-    timeWarp = (int) GuiSlider({static_cast<float>(GetScreenWidth() - 120 - 30), 10, 120, 30}, "time-warp",
-                               TextFormat("%0.i", timeWarp), (float) timeWarp, 1, 150);
-
 }
 
 void Game::inWorldInfoText(Vector2 pos, float font_size) {
@@ -279,7 +283,7 @@ void Game::onScreenText() {
     DrawText(celestialBodies[planetIndex]->getName(),
              GetScreenWidth() / 2 - GetTextWidth(celestialBodies[planetIndex]->getName()) * 2, 10, 40, WHITE);
 
-    DrawFPS(10, 10);
+    DrawFPS(GetScreenWidth() - 80, 10);
 }
 
 
@@ -318,34 +322,34 @@ void Game::update(const float &dt) {
 void Game::render() {
     //Rendertexture for shader
     BeginTextureMode(target);
-        ClearBackground({0, 1, 23});
-        //World viewed by the camera
-        BeginMode2D(camera);
-            if (showPredictedTrajectories)
-                this->trajectories->render();
+    ClearBackground({0, 1, 23});
+    //World viewed by the camera
+    BeginMode2D(camera);
+    if (showPredictedTrajectories)
+        this->trajectories->render();
 
-            for (auto e: celestialBodies) {
-                e->render();
-            }
-        EndMode2D();
+    for (auto e: celestialBodies) {
+        e->render();
+    }
+    EndMode2D();
     EndTextureMode();
 
     BeginDrawing();
-        ClearBackground({0, 1, 23});
+    ClearBackground({0, 1, 23});
 
-        BeginShaderMode(bloomShader);
-            DrawTextureRec(target.texture,
-                           {0,0, (float)target.texture.width, (float)-target.texture.height},
-                           {0,0}, WHITE);
-        EndShaderMode();
+    BeginShaderMode(bloomShader);
+    DrawTextureRec(target.texture,
+                   {0, 0, (float) target.texture.width, (float) -target.texture.height},
+                   {0, 0}, WHITE);
+    EndShaderMode();
 
-        BeginMode2D(camera);
-            if (anyBodySelected)
-                inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
-        EndMode2D();
+    BeginMode2D(camera);
+    if (anyBodySelected)
+        inWorldInfoText(Vector2Add(posSelectedPlanet, {radiusSelectedPlanet, radiusSelectedPlanet}), 40);
+    EndMode2D();
 
-        guiUpdateRender();
-        onScreenText();
+    guiUpdateRender();
+    onScreenText();
     EndDrawing();
 }
 

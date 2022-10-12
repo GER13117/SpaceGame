@@ -10,6 +10,9 @@
 class Game {
 
 private:
+
+    float sideGuiWidth;
+
     Shader bloomShader;
 
     RenderTexture2D target;

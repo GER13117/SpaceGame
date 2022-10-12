@@ -4,7 +4,6 @@
 
 #include "include/Trajectories.h"
 
-#include <utility>
 
 void Trajectories::setCelestialBodies(std::vector<CelestialBody *> &celestial_bodies) {
     this->celestialBodies = celestial_bodies;

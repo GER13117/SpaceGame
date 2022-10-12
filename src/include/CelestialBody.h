@@ -13,7 +13,7 @@
 
 class CelestialBody {
 private:
-    const float G = 0.00001;
+    const float G = 0.00000000006;
 
     std::vector<CelestialBody *> celestialBodies;
 
