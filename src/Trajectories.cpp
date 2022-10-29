@@ -15,11 +15,16 @@ void Trajectories::update(const float &dt, int centralPlanet) {
         if (celestialBodies[i]->hasRing) {
             float distToSurface = celestialBodies[i]->getInnerRadius() - celestialBodies[i]->getRadius();
             float ringWidth = celestialBodies[i]->getOuterRadius() - celestialBodies[i]->getInnerRadius();
-            virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), distToSurface, ringWidth, celestialBodies[i]->getPosition(),
-                                                      celestialBodies[i]->getVVelocity(), celestialBodies[i]->getColor(), celestialBodies[i]->getRingColor(), celestialBodies[i]->getName()));
+            virtualBodies.push_back(
+                    new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(),
+                                      distToSurface, ringWidth, celestialBodies[i]->getPosition(),
+                                      celestialBodies[i]->getVVelocity(), celestialBodies[i]->getColor(),
+                                      celestialBodies[i]->getRingColor(), celestialBodies[i]->getName()));
         } else {
-            virtualBodies.push_back(new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(), celestialBodies[i]->getPosition(), celestialBodies[i]->getVVelocity(),
-                                                      celestialBodies[i]->getColor(), celestialBodies[i]->getName()));
+            virtualBodies.push_back(
+                    new CelestialBody(celestialBodies[i]->getSurfaceGravity(), celestialBodies[i]->getRadius(),
+                                      celestialBodies[i]->getPosition(), celestialBodies[i]->getVVelocity(),
+                                      celestialBodies[i]->getColor(), celestialBodies[i]->getName()));
         }
     }
 
@@ -61,7 +66,7 @@ void Trajectories::update(const float &dt, int centralPlanet) {
 }
 
 Trajectories::Trajectories(int numSteps)
-    : numSteps(numSteps) {
+        : numSteps(numSteps) {
 }
 
 void Trajectories::render() {
