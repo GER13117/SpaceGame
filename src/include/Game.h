@@ -6,6 +6,8 @@
 #define SPACEGAME_GAME_H
 
 #include <algorithm>
+#include <cstdint>
+
 #include "Trajectories.h"
 class Game {
 
